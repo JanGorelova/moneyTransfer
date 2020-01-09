@@ -1,0 +1,55 @@
+plugins {
+    id 'java'
+    id "de.schablinski.activejdbc-gradle-plugin" version "1.5.1"
+    id "org.flywaydb.flyway" version "6.1.4"
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+jar {
+    manifest {
+        attributes "Main-Class": "com.moneytransfer.MoneyTransferApplication"
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    //Javalin framework
+    compile group: 'io.javalin', name: 'javalin', version: '3.5.0'
+    compile "org.slf4j:slf4j-simple:1.7.26"
+
+    compile group: 'org.yaml', name: 'snakeyaml', version: '1.24'
+
+    //ORM
+    compile group: 'org.javalite', name: 'activejdbc', version: '2.2'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.17'
+
+    compile group: 'org.projectlombok', name: 'lombok', version: '1.18.10'
+    annotationProcessor "org.projectlombok:lombok:1.18.10"
+
+    compile group: 'io.vavr', name: 'vavr', version: '0.10.2'
+    compile group: 'org.hibernate', name: 'hibernate-validator', version: '6.0.16.Final'
+    compile group: 'org.hibernate.validator', name: 'hibernate-validator-annotation-processor', version: '6.0.2.Final'
+    compile group: 'com.google.inject', name: 'guice', version: '4.2.2'
+    compile group: 'org.glassfish', name: 'javax.el', version: '3.0.0'
+    compile group: 'org.hibernate', name: 'hibernate-validator-cdi', version: '6.1.0.Final'
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+flyway {
+    url = 'jdbc:mysql://localhost:3306'
+    user = 'root'
+    password = '1234'
+    schemas=['money_transfer']
+}
