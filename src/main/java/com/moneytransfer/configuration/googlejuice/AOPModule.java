@@ -2,8 +2,8 @@ package com.moneytransfer.configuration.googlejuice;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.matcher.Matchers;
-import com.moneytransfer.configuration.googleaspect.InTransaction;
-import com.moneytransfer.configuration.googleaspect.TransactionAspect;
+import com.moneytransfer.configuration.googlejuice.aspect.InTransaction;
+import com.moneytransfer.configuration.googlejuice.aspect.TransactionAspect;
 
 public class AOPModule extends AbstractModule {
     @Override

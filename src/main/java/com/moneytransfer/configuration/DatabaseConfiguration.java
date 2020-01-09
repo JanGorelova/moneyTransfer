@@ -1,16 +1,36 @@
 package com.moneytransfer.configuration;
 
+import com.moneytransfer.exception.MoneyTransferException;
+import io.vavr.control.Try;
+import lombok.Getter;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jetty.http.HttpStatus;
 import org.javalite.activejdbc.Base;
+import org.javalite.activejdbc.DB;
 
 import java.util.Properties;
 
-public class DatabaseConfiguration {
-    public static void initializeDatabase(Properties properties) {
-        final String password = properties.getProperty("datasource.password");
-        final String driver = properties.getProperty("datasource.driver");
-        final String user = properties.getProperty("datasource.user");
-        final String url = properties.getProperty("datasource.url");
+@Getter
 
-        Base.open(driver, url, user, password);
+@Slf4j
+public class DatabaseConfiguration {
+    public static String password;
+    public static String driver;
+    public static String user;
+    public static String url;
+
+    public static void initializeDatabase(Properties properties) {
+        password = properties.getProperty("datasource.password");
+        driver = properties.getProperty("datasource.driver");
+        user = properties.getProperty("datasource.user");
+        url = properties.getProperty("datasource.url");
+    }
+
+    public static DB getConnection() {
+        return Try.ofSupplier( () -> Base.open(driver, url, user, password) )
+                .onFailure( e -> log.error(e.getMessage()) )
+                .getOrElseThrow( e -> new MoneyTransferException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR_500) );
     }
 }

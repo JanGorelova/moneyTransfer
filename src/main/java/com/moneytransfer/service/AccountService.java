@@ -1,7 +1,7 @@
 package com.moneytransfer.service;
 
 import com.google.inject.Inject;
-import com.moneytransfer.configuration.googleaspect.InTransaction;
+import com.moneytransfer.configuration.googlejuice.aspect.InTransaction;
 import com.moneytransfer.entity.Account;
 import com.moneytransfer.entity.AccountTransaction;
 

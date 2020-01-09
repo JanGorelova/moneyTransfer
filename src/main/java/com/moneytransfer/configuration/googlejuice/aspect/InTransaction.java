@@ -1,4 +1,4 @@
-package com.moneytransfer.configuration.googleaspect;
+package com.moneytransfer.configuration.googlejuice.aspect;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
