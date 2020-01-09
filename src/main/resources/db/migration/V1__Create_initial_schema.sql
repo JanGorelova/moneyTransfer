@@ -1,23 +1,24 @@
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL,
     first_name varchar(40) NOT NULL,
-    second_name varchar(60) NOT NULL,
+    last_name varchar(60) NOT NULL,
     email varchar(60) NOT NULL,
-    date_updated DATE NOT NULL,
+    date_updated TIMESTAMP NOT NULL,
     date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )  ENGINE=INNODB;
 
 CREATE TABLE IF NOT EXISTS accounts (
     id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL,
     user_id BIGINT NOT NULL,
-    amount DECIMAL(10,7) NOT NULL,
-    date_updated DATE NOT NULL,
+    balance DECIMAL(10,7) NOT NULL,
+    currency ENUM('USD', 'RUB', 'EUR') NOT NULL,
+    date_updated TIMESTAMP NOT NULL,
     date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (user_id)
     REFERENCES users (id)
     ON UPDATE RESTRICT
-    ON DELETE CASCADE,
+    ON DELETE CASCADE
 )  ENGINE=INNODB;
 
 CREATE TABLE IF NOT EXISTS account_transactions (

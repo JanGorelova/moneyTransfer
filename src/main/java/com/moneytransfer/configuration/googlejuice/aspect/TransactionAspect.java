@@ -8,13 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.eclipse.jetty.http.HttpStatus;
-import org.javalite.activejdbc.Base;
 import org.javalite.activejdbc.DB;
 
 @Slf4j
 public class TransactionAspect implements MethodInterceptor {
     @Override
-    public Object invoke(MethodInvocation invocation) throws Throwable {
+    public Object invoke(MethodInvocation invocation) {
         DB connection = DatabaseConfiguration.getConnection();
 
         return Try.of( () -> processInTransaction(invocation, connection) )

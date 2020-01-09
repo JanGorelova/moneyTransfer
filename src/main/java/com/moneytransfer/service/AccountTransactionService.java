@@ -1,9 +1,11 @@
 package com.moneytransfer.service;
 
-import com.moneytransfer.entity.AccountTransaction;
+import com.moneytransfer.model.dto.entity.AccountTransactionDTO;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 public class AccountTransactionService {
-    private AccountTransaction create() {
+    public AccountTransactionDTO create() {
         return null;
     }
 }

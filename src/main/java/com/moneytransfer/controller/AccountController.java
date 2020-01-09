@@ -1,10 +1,11 @@
 package com.moneytransfer.controller;
 
 import com.google.inject.Inject;
-import com.moneytransfer.dto.TransferDTO;
+import com.moneytransfer.model.dto.AccountCreationDTO;
+import com.moneytransfer.model.dto.TransferDTO;
+import com.moneytransfer.service.AccountService;
 import com.moneytransfer.util.ValidatorUtil;
 import io.javalin.http.Handler;
-import com.moneytransfer.service.AccountService;
 
 public class AccountController {
     private AccountService accountService;
@@ -17,10 +18,16 @@ public class AccountController {
     public Handler transfer = context -> {
         TransferDTO transferDTO = context.bodyAsClass(TransferDTO.class);
 
-//        throw new NullPointerException("lalal");
+        ValidatorUtil.validate(transferDTO);
 
-//        ValidatorUtil.validate(transferDTO);
+        context.json(accountService.transfer(transferDTO));
+    };
 
-        accountService.transfer();
+    public Handler create = context -> {
+        AccountCreationDTO accountCreationDTO = context.bodyAsClass(AccountCreationDTO.class);
+
+        ValidatorUtil.validate(accountCreationDTO);
+
+        context.json(accountService.create(accountCreationDTO));
     };
 }
