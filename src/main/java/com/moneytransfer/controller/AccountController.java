@@ -30,4 +30,12 @@ public class AccountController {
 
         context.json(accountService.create(accountCreationDTO));
     };
+
+    public Handler getTransactions = context -> {
+        AccountCreationDTO accountCreationDTO = context.bodyAsClass(AccountCreationDTO.class);
+
+        ValidatorUtil.validate(accountCreationDTO);
+
+        context.json(accountService.create(accountCreationDTO));
+    };
 }

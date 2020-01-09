@@ -1,13 +1,15 @@
 package com.moneytransfer.service;
 
 import com.moneytransfer.configuration.googlejuice.aspect.InTransaction;
+import com.moneytransfer.exception.MoneyTransferException;
 import com.moneytransfer.model.dto.UserCreationDTO;
 import com.moneytransfer.model.dto.entity.UserDTO;
 import com.moneytransfer.model.entity.User;
 import lombok.NoArgsConstructor;
+import org.eclipse.jetty.http.HttpStatus;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @NoArgsConstructor
 public class UserService {
@@ -26,7 +28,8 @@ public class UserService {
     }
 
     public void validateUserExists(Long userId) {
-
+        if (Objects.isNull(User.findById(userId)))
+            throw new MoneyTransferException(String.format("User with specified id: %s doesn't exist", userId), HttpStatus.NOT_ACCEPTABLE_406);
     }
 
     private UserDTO toDTO(User user) {

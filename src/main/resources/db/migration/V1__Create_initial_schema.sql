@@ -2,14 +2,14 @@ CREATE TABLE IF NOT EXISTS users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL,
     first_name varchar(40) NOT NULL,
     last_name varchar(60) NOT NULL,
-    email varchar(60) NOT NULL,
+    email varchar(60) UNIQUE NOT NULL,
     date_updated TIMESTAMP NOT NULL,
     date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )  ENGINE=INNODB;
 
 CREATE TABLE IF NOT EXISTS accounts (
     id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    user_id BIGINT NOT NULL,
+    user_id BIGINT UNIQUE NOT NULL,
     balance DECIMAL(10,7) NOT NULL,
     currency ENUM('USD', 'RUB', 'EUR') NOT NULL,
     date_updated TIMESTAMP NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS account_transactions (
     sender_id BIGINT NOT NULL,
     recipient_id BIGINT NOT NULL,
     amount DECIMAL(10,7) NOT NULL,
-    transaction_type varchar(20) NOT NULL,
+    transaction_type ENUM('INTERNAL', 'EXTERNAL') NOT NULL,
     date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (sender_id)

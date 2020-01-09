@@ -1,6 +1,10 @@
 package com.moneytransfer.model.dto;
 
-import lombok.*;
+import com.moneytransfer.model.enums.Currency;
+import com.moneytransfer.model.enums.TransactionType;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -21,4 +25,10 @@ public class TransferDTO {
     @Positive(message = "Amount must be positive")
     @NotNull(message = "Amount must be specified")
     private BigDecimal amount;
+
+    @NotNull(message = "Currency must be specified")
+    private Currency currency;
+
+    @NotNull(message = "Transaction type must be specified")
+    private TransactionType transactionType;
 }

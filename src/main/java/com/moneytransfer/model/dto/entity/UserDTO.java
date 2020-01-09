@@ -1,10 +1,7 @@
 package com.moneytransfer.model.dto.entity;
 
-import com.moneytransfer.model.enums.Currency;
 import lombok.*;
 
-import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Builder
@@ -19,7 +16,7 @@ public class UserDTO {
 
     private String email;
 
-    private String dateCreated;
+    private LocalDateTime dateCreated;
 
-    private String dateUpdated;
+    private LocalDateTime dateUpdated;
 }

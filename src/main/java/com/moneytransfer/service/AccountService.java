@@ -8,13 +8,14 @@ import com.moneytransfer.model.dto.TransferDTO;
 import com.moneytransfer.model.dto.entity.AccountDTO;
 import com.moneytransfer.model.dto.entity.AccountTransactionDTO;
 import com.moneytransfer.model.entity.Account;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jetty.http.HttpStatus;
 
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+@Slf4j
 public class AccountService {
     private final AccountTransactionService accountTransactionService;
     private final UserService userService;
@@ -30,7 +31,7 @@ public class AccountService {
         Long userId = accountCreationDTO.getUserId();
 
         userService.validateUserExists(userId);
-        validateAccountDoesntExist(userId);
+        checkAccountDoesntExist(userId);
 
         Account account = new Account(
                 userId,
@@ -44,28 +45,31 @@ public class AccountService {
         return toDTO(account);
     }
 
-    private void validateAccountDoesntExist(Long userId) {
-        if (!Account.where("user_id = ?", userId).isEmpty())
-            throw new MoneyTransferException("User with specified id already has account", HttpStatus.NOT_ACCEPTABLE_406);
-    }
-
     @InTransaction
     public AccountTransactionDTO transfer(TransferDTO transferDTO) {
         Account recipient = Account.findById(transferDTO.getRecipientAccountId());
         Account sender = Account.findById(transferDTO.getSenderAccountId());
 
-        validate(recipient, sender, transferDTO.getAmount());
+        BigDecimal amount = transferDTO.getAmount();
+        checkEnoughMoney(recipient, sender, amount);
 
-        withdraw();
-        deposit();
+        withdraw(sender, amount);
+        deposit(recipient,amount);
 
-        return accountTransactionService.create();
+        log.info(String.format("Amount %s of %s was transferred from sender with id: %s to recipient with id: %s",
+                amount, transferDTO.getCurrency() ,sender.getId(), recipient.getId()));
+
+        return accountTransactionService.create(transferDTO);
     }
 
-    private void validate(Account recipient, Account sender, BigDecimal amount) {
-        if (Objects.isNull(recipient) || Objects.isNull(sender)) {
+    private void checkAccountDoesntExist(Long userId) {
+        if (!Account.where("user_id = ?", userId).isEmpty())
+            throw new MoneyTransferException("User with specified id already has account", HttpStatus.NOT_ACCEPTABLE_406);
+    }
+
+    private void checkEnoughMoney(Account recipient, Account sender, BigDecimal amount) {
+        if (Objects.isNull(recipient) || Objects.isNull(sender))
             throw new MoneyTransferException("Recipient or sender doesn't exist", HttpStatus.NOT_ACCEPTABLE_406);
-        }
 
         BigDecimal balance = sender.getBalance();
         if (balance.compareTo(amount) <= 0) {
@@ -73,12 +77,16 @@ public class AccountService {
         }
     }
 
-    private void deposit() {
+    private void deposit(Account recipient, BigDecimal amount) {
+        BigDecimal previousBalance = recipient.getBalance();
 
+        recipient.setBigDecimal("balance", previousBalance.add(amount)).saveIt();
     }
 
-    private void withdraw() {
+    private void withdraw(Account sender, BigDecimal amount) {
+        BigDecimal previousBalance = sender.getBalance();
 
+        sender.setBigDecimal("balance", previousBalance.subtract(amount)).saveIt();
     }
 
     private AccountDTO toDTO(Account account) {

@@ -1,14 +1,10 @@
 package com.moneytransfer.model.entity;
 
-import com.moneytransfer.model.enums.Currency;
 import com.moneytransfer.util.DateUtil;
 import org.javalite.activejdbc.Model;
 import org.javalite.activejdbc.annotations.Table;
 
-import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Table("users")
 public class User extends Model {
@@ -30,11 +26,11 @@ public class User extends Model {
         return getString("email");
     }
 
-    public String getDateUpdated() {
+    public LocalDateTime getDateUpdated() {
         return DateUtil.getDateUpdated(getString("date_updated"));
     }
 
-    public String getDateCreated() {
+    public LocalDateTime getDateCreated() {
         return DateUtil.getDateCreated(getString("date_created"));
     }
 }

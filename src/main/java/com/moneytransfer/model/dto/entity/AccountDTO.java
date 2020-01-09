@@ -3,7 +3,6 @@ package com.moneytransfer.model.dto.entity;
 import com.moneytransfer.model.enums.Currency;
 import lombok.*;
 
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -19,7 +18,7 @@ public class AccountDTO {
 
     private Currency currency;
 
-    private String dateCreated;
+    private LocalDateTime dateCreated;
 
-    private String dateUpdated;
+    private LocalDateTime dateUpdated;
 }

@@ -2,7 +2,6 @@ package com.moneytransfer.model.entity;
 
 import com.moneytransfer.model.enums.Currency;
 import com.moneytransfer.util.DateUtil;
-import lombok.Builder;
 import org.javalite.activejdbc.Model;
 import org.javalite.activejdbc.annotations.Table;
 
@@ -29,11 +28,11 @@ public class Account extends Model {
         return Currency.valueOf(getString("currency"));
     }
 
-    public String getDateUpdated() {
+    public LocalDateTime getDateUpdated() {
         return DateUtil.getDateUpdated(getString("date_updated"));
     }
 
-    public String getDateCreated() {
+    public LocalDateTime getDateCreated() {
         return DateUtil.getDateCreated(getString("date_created"));
     }
 }
