@@ -32,10 +32,14 @@ dependencies {
 
     //ORM
     compile group: 'org.javalite', name: 'activejdbc', version: '2.2'
+
     compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.17'
+    compile group: 'com.h2database', name: 'h2', version: '1.4.199'
 
     compile group: 'org.projectlombok', name: 'lombok', version: '1.18.10'
     annotationProcessor "org.projectlombok:lombok:1.18.10"
+
+    compile "org.flywaydb:flyway-core:6.1.3"
 
     compile group: 'io.vavr', name: 'vavr', version: '0.10.2'
     compile group: 'org.hibernate', name: 'hibernate-validator', version: '6.0.16.Final'
@@ -46,7 +50,8 @@ dependencies {
 
     compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.3.0-rc1'
 
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation("org.junit.jupiter:junit-jupiter:5.4.1")
+    testImplementation("org.apache.httpcomponents:httpclient:4.5.10")
 }
 
 flyway {

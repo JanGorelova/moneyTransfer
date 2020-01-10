@@ -1,7 +1,7 @@
 package com.moneytransfer.configuration.googlejuice.aspect;
 
 
-import com.moneytransfer.configuration.DatabaseConfiguration;
+import com.moneytransfer.configuration.database.DatabaseConfiguration;
 import com.moneytransfer.exception.MoneyTransferException;
 import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;

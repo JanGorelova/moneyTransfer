@@ -1,4 +1,4 @@
-package com.moneytransfer;
+package integration;
 
 import com.google.inject.Guice;
 import com.moneytransfer.configuration.JavalinConfiguration;
@@ -6,16 +6,21 @@ import com.moneytransfer.configuration.database.DatabaseConfiguration;
 import com.moneytransfer.configuration.googlejuice.AOPModule;
 import com.moneytransfer.configuration.googlejuice.BasicModule;
 import io.vavr.control.Try;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-public class MoneyTransferApplication {
-    public static void main(String[] args) {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class UserIntegrationTest {
+    @BeforeAll
+    void setUp() {
         Properties properties = Try.withResources(
-                () -> MoneyTransferApplication.class.getClassLoader().getResourceAsStream("configuration.properties"))
-                .of(MoneyTransferApplication::getProperties)
+                () -> UserIntegrationTest.class.getClassLoader().getResourceAsStream("configuration_test.properties"))
+                .of(UserIntegrationTest::getProperties)
                 .getOrElseThrow( ex -> new RuntimeException(ex.getMessage()));
 
         Guice.createInjector(new BasicModule(), new AOPModule());
@@ -31,4 +36,11 @@ public class MoneyTransferApplication {
 
         return properties;
     }
+
+    @Test
+    void test() {
+        System.out.println("HI");
+    }
+
+
 }
