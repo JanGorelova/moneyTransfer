@@ -33,7 +33,7 @@ public class DatabaseConfiguration {
         hikariConfig.setPassword(properties.getProperty("datasource.password"));
         hikariConfig.setMaximumPoolSize(100);
 
-        hikariConfig.setDriverClassName("com.mysql.jdbc.Driver");
+//        hikariConfig.setDriverClassName("com.mysql.jdbc.Driver");
 
         return new HikariDataSource(hikariConfig);
     }

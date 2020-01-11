@@ -10,7 +10,7 @@ public class FlywayConfiguration {
                 .dataSource(dataSource)
                 .load();
 
-//        flyway.clean();
+        flyway.clean();
 
         flyway.repair();
 

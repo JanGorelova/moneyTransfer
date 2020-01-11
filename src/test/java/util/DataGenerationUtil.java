@@ -10,4 +10,10 @@ public class DataGenerationUtil {
                 .email("Test@test.com")
                 .build();
     }
+
+    public static String userCreationDTOJson() {
+        return " {\"firstName\" : \"TestFirstName\",\n" +
+                "\"lastName\": \"TestLastName\",\n" +
+                "\"email\": \"Test@test.com\"}";
+    }
 }
