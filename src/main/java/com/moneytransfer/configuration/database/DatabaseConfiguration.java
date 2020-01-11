@@ -1,35 +1,45 @@
 package com.moneytransfer.configuration.database;
 
 import com.moneytransfer.exception.MoneyTransferException;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import io.vavr.control.Try;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jetty.http.HttpStatus;
 import org.javalite.activejdbc.Base;
 import org.javalite.activejdbc.DB;
+import org.jetbrains.annotations.NotNull;
 
+import javax.sql.DataSource;
 import java.util.Properties;
 
 @Getter
 
 @Slf4j
 public class DatabaseConfiguration {
-    public static String password;
-    public static String driver;
-    public static String user;
-    public static String url;
+    private static DataSource dataSource;
 
     public static void initializeDatabase(Properties properties) {
-        password = properties.getProperty("datasource.password");
-        driver = properties.getProperty("datasource.driver");
-        user = properties.getProperty("datasource.user");
-        url = properties.getProperty("datasource.url");
+        dataSource = getHikariDataSource(properties);
 
-        FlywayConfiguration.initializeSchema(url, user, password);
+        FlywayConfiguration.initializeSchema(dataSource);
+    }
+
+    @NotNull
+    private static HikariDataSource getHikariDataSource(Properties properties) {
+        HikariConfig hikariConfig = new HikariConfig();
+
+        hikariConfig.setJdbcUrl(properties.getProperty("datasource.url"));
+        hikariConfig.setUsername(properties.getProperty("datasource.user"));
+        hikariConfig.setPassword(properties.getProperty("datasource.password"));
+        hikariConfig.setMaximumPoolSize(100);
+
+        return new HikariDataSource(hikariConfig);
     }
 
     public static DB getConnection() {
-        return Try.ofSupplier(() -> Base.open(driver, url, user, password))
+        return Try.ofSupplier( () -> Base.open(dataSource) )
                 .onFailure(e -> log.error(e.getMessage()))
                 .getOrElseThrow(e -> new MoneyTransferException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR_500));
     }

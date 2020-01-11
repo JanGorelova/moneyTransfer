@@ -3,10 +3,11 @@ package com.moneytransfer.service;
 import com.google.inject.Inject;
 import com.moneytransfer.configuration.googlejuice.aspect.InTransaction;
 import com.moneytransfer.exception.MoneyTransferException;
-import com.moneytransfer.model.dto.AccountCreationDTO;
-import com.moneytransfer.model.dto.TransferDTO;
 import com.moneytransfer.model.dto.entity.AccountDTO;
 import com.moneytransfer.model.dto.entity.AccountTransactionDTO;
+import com.moneytransfer.model.dto.request.AccountCreationDTO;
+import com.moneytransfer.model.dto.request.AccountDepositDTO;
+import com.moneytransfer.model.dto.request.AccountTransferDTO;
 import com.moneytransfer.model.entity.Account;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jetty.http.HttpStatus;
@@ -30,8 +31,8 @@ public class AccountService {
     public AccountDTO create(AccountCreationDTO accountCreationDTO) {
         Long userId = accountCreationDTO.getUserId();
 
-        userService.validateUserExists(userId);
-        checkAccountDoesntExist(userId);
+        userService.verifyUserExists(userId);
+        verifyAccountDoesntExist(userId);
 
         Account account = new Account(
                 userId,
@@ -46,15 +47,16 @@ public class AccountService {
     }
 
     @InTransaction
-    public AccountTransactionDTO transfer(TransferDTO transferDTO) {
-        Account recipient = Account.findById(transferDTO.getRecipientAccountId());
-        Account sender = Account.findById(transferDTO.getSenderAccountId());
+    public AccountTransactionDTO transfer(AccountTransferDTO transferDTO) {
+        Account recipient = getAccount(transferDTO.getRecipientAccountId());
+        Account sender = getAccount(transferDTO.getSenderAccountId());
 
         BigDecimal amount = transferDTO.getAmount();
-        checkEnoughMoney(recipient, sender, amount);
+        //todo add exchange
+        verifyEnoughMoney(sender, amount);
 
         withdraw(sender, amount);
-        deposit(recipient,amount);
+        deposit(recipient, amount);
 
         log.info(String.format("Amount %s of %s was transferred from sender with id: %s to recipient with id: %s",
                 amount, transferDTO.getCurrency() ,sender.getId(), recipient.getId()));
@@ -62,31 +64,53 @@ public class AccountService {
         return accountTransactionService.create(transferDTO);
     }
 
-    private void checkAccountDoesntExist(Long userId) {
+    @InTransaction
+    public AccountDTO deposit(AccountDepositDTO accountDepositDTO) {
+        Account account = getAccount(accountDepositDTO.getRecipientAccountId());
+
+        deposit(account, accountDepositDTO.getAmount());
+
+        return toDTO(account);
+    }
+
+    private void deposit(Account recipient, BigDecimal amount) {
+        BigDecimal recipientsPreviousBalance = recipient.getBalance();
+
+        changeBalance(recipient, recipientsPreviousBalance.add(amount));
+    }
+
+    private void withdraw(Account sender, BigDecimal amount) {
+        BigDecimal sendersPreviousBalance = sender.getBalance();
+
+        changeBalance(sender, sendersPreviousBalance.subtract(amount));
+    }
+
+    private Account getAccount(Long accountId) {
+        Account account = Account.findById(accountId);
+
+        if (Objects.isNull(account))
+            throw new MoneyTransferException(String.format("Account with id: %s doesn't exist", accountId), HttpStatus.NOT_ACCEPTABLE_406);
+
+        return account;
+    }
+
+    private void changeBalance(Account account, BigDecimal amount) {
+        account.setBigDecimal("balance", amount);
+        account.setDate("date_updated", LocalDateTime.now());
+
+        account.saveIt();
+    }
+
+    private void verifyAccountDoesntExist(Long userId) {
         if (!Account.where("user_id = ?", userId).isEmpty())
             throw new MoneyTransferException("User with specified id already has account", HttpStatus.NOT_ACCEPTABLE_406);
     }
 
-    private void checkEnoughMoney(Account recipient, Account sender, BigDecimal amount) {
-        if (Objects.isNull(recipient) || Objects.isNull(sender))
-            throw new MoneyTransferException("Recipient or sender doesn't exist", HttpStatus.NOT_ACCEPTABLE_406);
-
+    private void verifyEnoughMoney(Account sender, BigDecimal amount) {
         BigDecimal balance = sender.getBalance();
         if (balance.compareTo(amount) <= 0) {
             throw new MoneyTransferException("Transfer not allowed insufficient funds", HttpStatus.NOT_ACCEPTABLE_406);
         }
-    }
-
-    private void deposit(Account recipient, BigDecimal amount) {
-        BigDecimal previousBalance = recipient.getBalance();
-
-        recipient.setBigDecimal("balance", previousBalance.add(amount)).saveIt();
-    }
-
-    private void withdraw(Account sender, BigDecimal amount) {
-        BigDecimal previousBalance = sender.getBalance();
-
-        sender.setBigDecimal("balance", previousBalance.subtract(amount)).saveIt();
     }
 
     private AccountDTO toDTO(Account account) {

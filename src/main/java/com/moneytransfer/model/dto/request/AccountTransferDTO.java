@@ -1,4 +1,4 @@
-package com.moneytransfer.model.dto;
+package com.moneytransfer.model.dto.request;
 
 import com.moneytransfer.model.enums.Currency;
 import com.moneytransfer.model.enums.TransactionType;
@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @Setter
 @Getter
 @NoArgsConstructor
-public class TransferDTO {
+public class AccountTransferDTO {
     @Positive(message = "Sender account id must be positive")
     @NotNull(message = "Sender account id must be specified")
     private Long senderAccountId;

@@ -1,46 +1,37 @@
 package integration;
 
-import com.google.inject.Guice;
-import com.moneytransfer.configuration.JavalinConfiguration;
-import com.moneytransfer.configuration.database.DatabaseConfiguration;
-import com.moneytransfer.configuration.googlejuice.AOPModule;
-import com.moneytransfer.configuration.googlejuice.BasicModule;
-import io.vavr.control.Try;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.junit.Before;
+import org.junit.Test;
+import util.ApplicationInitializationUtil;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+
 public class UserIntegrationTest {
-    @BeforeAll
-    void setUp() {
-        Properties properties = Try.withResources(
-                () -> UserIntegrationTest.class.getClassLoader().getResourceAsStream("configuration_test.properties"))
-                .of(UserIntegrationTest::getProperties)
-                .getOrElseThrow( ex -> new RuntimeException(ex.getMessage()));
-
-        Guice.createInjector(new BasicModule(), new AOPModule());
-
-        DatabaseConfiguration.initializeDatabase(properties);
-        JavalinConfiguration.startJavalin(properties);
-    }
-
-    private static Properties getProperties(InputStream inputStream) throws IOException {
-        Properties properties = new Properties();
-
-        properties.load(inputStream);
-
-        return properties;
+    @Before
+    public void setUp() {
+        ApplicationInitializationUtil.initialize();
     }
 
     @Test
-    void test() {
-        System.out.println("HI");
+    public void testUserSuccessfullyCreated() throws IOException {
+        CloseableHttpClient client = HttpClients.createDefault();
+        HttpPost request = new HttpPost("http://localhost:8081/api/users/create");
+
+        String json = " {\n" +
+                "\t\"firstName\" : \"tets\",\n" +
+                "\t\"lastName\": \"ytrt\",\n" +
+                "\t\"email\": \"janny@gn5em.com\"\n" +
+                "}";
+        request.setEntity(new StringEntity(json));
+
+        request.setHeader("Accept", "application/json");
+        request.setHeader("Content-type", "application/json");
+
+        client.execute(request);
     }
-
-
 }

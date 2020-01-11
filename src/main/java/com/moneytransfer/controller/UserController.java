@@ -1,24 +1,25 @@
 package com.moneytransfer.controller;
 
 import com.google.inject.Inject;
-import com.moneytransfer.model.dto.UserCreationDTO;
+import com.moneytransfer.model.dto.entity.UserDTO;
+import com.moneytransfer.model.dto.request.UserCreationDTO;
 import com.moneytransfer.service.UserService;
 import com.moneytransfer.util.ValidatorUtil;
-import io.javalin.http.Handler;
+import io.javalin.http.Context;
+import io.javalin.plugin.openapi.annotations.*;
 
 public class UserController {
-    private UserService userService;
-
     @Inject
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    private static UserService userService;
 
-    public Handler create = context -> {
+    @OpenApi(summary = "Create user", path = "/api/users/create", method = HttpMethod.POST,
+            requestBody = @OpenApiRequestBody(content = {@OpenApiContent(from = UserCreationDTO.class)}),
+            responses = @OpenApiResponse(status = "200", content = {@OpenApiContent(from = UserDTO.class)}))
+    public static void create(Context context)  {
         UserCreationDTO userCreationDTO = context.bodyAsClass(UserCreationDTO.class);
 
         ValidatorUtil.validate(userCreationDTO);
 
         context.json(userService.create(userCreationDTO));
-    };
+    }
 }

@@ -1,19 +1,15 @@
-package com.moneytransfer.model.dto;
+package com.moneytransfer.model.dto.request;
 
-import com.moneytransfer.model.enums.Currency;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.sql.Date;
 
 @Setter
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class UserCreationDTO {
     @NotEmpty(message = "First name must be specified")
     private String firstName;

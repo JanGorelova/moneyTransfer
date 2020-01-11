@@ -1,17 +1,19 @@
 package com.moneytransfer.configuration;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
-import com.google.inject.Inject;
 import com.moneytransfer.controller.AccountController;
 import com.moneytransfer.controller.UserController;
 import com.moneytransfer.exception.MoneyTransferException;
 import com.moneytransfer.model.dto.entity.ExceptionDTO;
 import io.javalin.Javalin;
-import io.javalin.core.JavalinConfig;
-import io.javalin.plugin.json.JavalinJson;
-import io.vavr.control.Try;
+import io.javalin.plugin.json.JavalinJackson;
+import io.javalin.plugin.openapi.OpenApiOptions;
+import io.javalin.plugin.openapi.OpenApiPlugin;
+import io.javalin.plugin.openapi.ui.SwaggerOptions;
+import io.swagger.v3.oas.models.info.Info;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jetty.http.HttpStatus;
 
@@ -21,20 +23,19 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 
 @Slf4j
 public class JavalinConfiguration {
-    @Inject
-    private static AccountController accountController;
-
-    @Inject
-    private static UserController userController;
-
     public static void startJavalin(Properties properties) {
-        Javalin app = Javalin.create(JavalinConfig::enableDevLogging);
+        Javalin app = Javalin.create(config -> {
+            config.enableDevLogging();
+            config.registerPlugin(new OpenApiPlugin(configureSwagger()));
+            config.defaultContentType = "application/json";
+        });
 
         configureEndpoints(app);
         configureExceptionHandling(app);
         configureToJsonMapper();
 
         int port = Integer.parseInt(properties.getProperty("application.port"));
+
         app.start(port);
     }
 
@@ -42,12 +43,13 @@ public class JavalinConfiguration {
         app.routes(() -> {
             path("/api", () -> {
                 path("/accounts", () -> {
-                    post("/transfer", accountController.transfer);
-                    post("/create", accountController.create);
-                    get("/transactions", accountController.getTransactions);
+                    post("/transfer", AccountController::transfer);
+                    post("/create", AccountController::create);
+                    post("/deposit", AccountController::deposit);
+                    get("/transactions", AccountController::getTransactions);
                 });
                 path("/users", () -> {
-                    post("/create", userController.create);
+                    post("/create", UserController::create);
                 });
             });
         });
@@ -66,17 +68,21 @@ public class JavalinConfiguration {
     }
 
     private static void configureToJsonMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = JavalinJackson.getObjectMapper();
 
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.registerModule(new JSR310Module());
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-
-        JavalinJson.setToJsonMapper( object -> getJson(objectMapper, object));
     }
 
-    private static String getJson(ObjectMapper objectMapper, Object object) {
-        return Try.of( () -> objectMapper.writeValueAsString(object) )
-                .onFailure(ex -> log.error(ex.getMessage()))
-                .getOrElseThrow(ex -> new MoneyTransferException(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR_500));
+    private static OpenApiOptions configureSwagger() {
+        return new OpenApiOptions(new Info().version("1.0").description("Money transfer application"))
+                .activateAnnotationScanningFor("com.moneytransfer.controller")
+                .path("/swagger-docs")
+                .swagger(new SwaggerOptions("/swagger").title("My Swagger Documentation"))
+                .defaultDocumentation(doc -> {
+                    doc.json("500", ExceptionDTO.class);
+                    doc.json("406", ExceptionDTO.class);
+        });
     }
 }

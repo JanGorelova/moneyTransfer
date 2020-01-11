@@ -2,13 +2,12 @@ package com.moneytransfer.configuration.googlejuice;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
-import com.moneytransfer.configuration.JavalinConfiguration;
 import com.moneytransfer.controller.AccountController;
 import com.moneytransfer.controller.UserController;
-import io.vavr.control.Try;
 import com.moneytransfer.service.AccountService;
 import com.moneytransfer.service.AccountTransactionService;
 import com.moneytransfer.service.UserService;
+import io.vavr.control.Try;
 
 
 public class BasicModule extends AbstractModule {
@@ -29,16 +28,7 @@ public class BasicModule extends AbstractModule {
                         .getOrElseThrow(ex -> new RuntimeException(ex.getMessage())))
                 .in(Scopes.SINGLETON);
 
-        bind(AccountController.class).toConstructor(
-                Try.of( () -> AccountController.class.getConstructor(AccountService.class) )
-                        .getOrElseThrow(ex -> new RuntimeException(ex.getMessage())))
-                .in(Scopes.SINGLETON);
-
-        bind(UserController.class).toConstructor(
-                Try.of( () -> UserController.class.getConstructor(UserService.class) )
-                        .getOrElseThrow(ex -> new RuntimeException(ex.getMessage())))
-                .in(Scopes.SINGLETON);
-
-        requestStaticInjection(JavalinConfiguration.class);
+        requestStaticInjection(UserController.class);
+        requestStaticInjection(AccountController.class);
     }
 }
