@@ -3,7 +3,7 @@ package com.moneytransfer.configuration;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.moneytransfer.controller.AccountController;
 import com.moneytransfer.controller.UserController;
 import com.moneytransfer.exception.MoneyTransferException;
@@ -71,15 +71,15 @@ public class JavalinConfiguration {
         ObjectMapper objectMapper = JavalinJackson.getObjectMapper();
 
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        objectMapper.registerModule(new JSR310Module());
+        objectMapper.registerModule(new JavaTimeModule());
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     }
 
     private static OpenApiOptions configureSwagger() {
         return new OpenApiOptions(new Info().version("1.0").description("Money transfer application"))
                 .activateAnnotationScanningFor("com.moneytransfer.controller")
-                .path("/swagger-docs")
-                .swagger(new SwaggerOptions("/swagger").title("My Swagger Documentation"))
+                .path("/swagger-documents")
+                .swagger(new SwaggerOptions("/swagger").title("Swagger Documentation"))
                 .defaultDocumentation(doc -> {
                     doc.json("500", ExceptionDTO.class);
                     doc.json("406", ExceptionDTO.class);

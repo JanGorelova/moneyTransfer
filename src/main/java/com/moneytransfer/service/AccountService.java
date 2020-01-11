@@ -9,6 +9,8 @@ import com.moneytransfer.model.dto.request.AccountCreationDTO;
 import com.moneytransfer.model.dto.request.AccountDepositDTO;
 import com.moneytransfer.model.dto.request.AccountTransferDTO;
 import com.moneytransfer.model.entity.Account;
+import com.moneytransfer.model.enums.Currency;
+import com.moneytransfer.util.RateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jetty.http.HttpStatus;
 
@@ -48,15 +50,17 @@ public class AccountService {
 
     @InTransaction
     public AccountTransactionDTO transfer(AccountTransferDTO transferDTO) {
+        Currency currency = transferDTO.getCurrency();
+        BigDecimal amount = transferDTO.getAmount();
+
         Account recipient = getAccount(transferDTO.getRecipientAccountId());
         Account sender = getAccount(transferDTO.getSenderAccountId());
 
-        BigDecimal amount = transferDTO.getAmount();
-        //todo add exchange
-        verifyEnoughMoney(sender, amount);
+        BigDecimal amountInSenderCurrency = RateUtil.exchange(sender.getCurrency(), currency, amount);
+        verifyEnoughMoney(sender, amountInSenderCurrency);
 
-        withdraw(sender, amount);
-        deposit(recipient, amount);
+        withdraw(sender, amountInSenderCurrency);
+        increaseBalance(recipient, amount, currency);
 
         log.info(String.format("Amount %s of %s was transferred from sender with id: %s to recipient with id: %s",
                 amount, transferDTO.getCurrency() ,sender.getId(), recipient.getId()));
@@ -67,16 +71,20 @@ public class AccountService {
     @InTransaction
     public AccountDTO deposit(AccountDepositDTO accountDepositDTO) {
         Account account = getAccount(accountDepositDTO.getRecipientAccountId());
+        BigDecimal amount = accountDepositDTO.getAmount().setScale(6, BigDecimal.ROUND_HALF_UP);
 
-        deposit(account, accountDepositDTO.getAmount());
+        increaseBalance(account, amount, accountDepositDTO.getCurrency());
 
         return toDTO(account);
     }
 
-    private void deposit(Account recipient, BigDecimal amount) {
+    private void increaseBalance(Account recipient, BigDecimal amount, Currency currency) {
+        Currency recipientCurrency = recipient.getCurrency();
+
+        BigDecimal amountInRecipientCurrency = RateUtil.exchange(recipientCurrency, currency, amount);
         BigDecimal recipientsPreviousBalance = recipient.getBalance();
 
-        changeBalance(recipient, recipientsPreviousBalance.add(amount));
+        changeBalance(recipient, recipientsPreviousBalance.add(amountInRecipientCurrency));
     }
 
     private void withdraw(Account sender, BigDecimal amount) {
@@ -95,8 +103,8 @@ public class AccountService {
     }
 
     private void changeBalance(Account account, BigDecimal amount) {
-        account.setBigDecimal("balance", amount);
-        account.setDate("date_updated", LocalDateTime.now());
+        account.setBigDecimal("balance", amount.setScale(6, BigDecimal.ROUND_HALF_UP));
+        account.setString("date_updated", LocalDateTime.now());
 
         account.saveIt();
     }

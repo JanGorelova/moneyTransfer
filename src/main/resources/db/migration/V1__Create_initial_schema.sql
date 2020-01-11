@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS accounts (
     id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL,
     user_id BIGINT UNIQUE NOT NULL,
-    balance DECIMAL(10,7) NOT NULL,
+    balance DECIMAL(16,7) NOT NULL,
     currency ENUM('USD', 'RUB', 'EUR') NOT NULL,
     date_updated TIMESTAMP NOT NULL,
     date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -25,8 +25,9 @@ CREATE TABLE IF NOT EXISTS account_transactions (
     id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL,
     sender_id BIGINT NOT NULL,
     recipient_id BIGINT NOT NULL,
-    amount DECIMAL(10,7) NOT NULL,
+    amount DECIMAL(16,7) NOT NULL,
     transaction_type ENUM('INTERNAL', 'EXTERNAL') NOT NULL,
+    currency ENUM('USD', 'RUB', 'EUR') NOT NULL,
     date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     FOREIGN KEY (sender_id)

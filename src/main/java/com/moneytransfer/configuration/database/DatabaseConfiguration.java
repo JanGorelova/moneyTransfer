@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jetty.http.HttpStatus;
 import org.javalite.activejdbc.Base;
 import org.javalite.activejdbc.DB;
-import org.jetbrains.annotations.NotNull;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -26,7 +25,6 @@ public class DatabaseConfiguration {
         FlywayConfiguration.initializeSchema(dataSource);
     }
 
-    @NotNull
     private static HikariDataSource getHikariDataSource(Properties properties) {
         HikariConfig hikariConfig = new HikariConfig();
 
@@ -34,6 +32,8 @@ public class DatabaseConfiguration {
         hikariConfig.setUsername(properties.getProperty("datasource.user"));
         hikariConfig.setPassword(properties.getProperty("datasource.password"));
         hikariConfig.setMaximumPoolSize(100);
+
+        hikariConfig.setDriverClassName("com.mysql.jdbc.Driver");
 
         return new HikariDataSource(hikariConfig);
     }
