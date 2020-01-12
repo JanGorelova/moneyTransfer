@@ -2,9 +2,7 @@ package com.moneytransfer.model.dto.request;
 
 import com.moneytransfer.model.enums.Currency;
 import com.moneytransfer.model.enums.TransactionType;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -13,6 +11,8 @@ import java.math.BigDecimal;
 @Setter
 @Getter
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class AccountTransferDTO {
     @Positive(message = "Sender account id must be positive")
     @NotNull(message = "Sender account id must be specified")

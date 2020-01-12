@@ -8,6 +8,7 @@ import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.eclipse.jetty.http.HttpStatus;
@@ -27,8 +28,10 @@ public class RateUtil {
         URI uri = buildURI(exchangeFrom);
 
         HttpGet request = new HttpGet(uri);
-        String entity = Try.withResources(() -> HttpClients.createDefault().execute(request))
-                .of(response -> EntityUtils.toString(response.getEntity()))
+        String entity = Try.withResources(() -> {
+            CloseableHttpClient client = HttpClients.createDefault();
+            return client.execute(request);
+        }).of(response -> EntityUtils.toString(response.getEntity()))
                 .onFailure(ex -> log.error(ex.getMessage())).get();
 
         RateDTO rateDTO = JavalinJson.fromJson(entity, RateDTO.class);

@@ -3,8 +3,10 @@ package com.moneytransfer.service;
 import com.moneytransfer.configuration.googlejuice.aspect.InTransaction;
 import com.moneytransfer.configuration.googlejuice.aspect.ReadFromDatabase;
 import com.moneytransfer.model.dto.entity.AccountTransactionDTO;
+import com.moneytransfer.model.dto.request.AccountDepositDTO;
 import com.moneytransfer.model.dto.request.AccountTransferDTO;
 import com.moneytransfer.model.entity.AccountTransaction;
+import com.moneytransfer.model.enums.TransactionType;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
@@ -21,6 +23,14 @@ public class AccountTransactionService {
         accountTransaction.saveIt();
 
         return toDTO(accountTransaction);
+    }
+
+    @InTransaction
+    public void createForDeposit(AccountDepositDTO accountDepositDTO) {
+        AccountTransaction accountTransaction = new AccountTransaction(null, accountDepositDTO.getRecipientAccountId(),
+                accountDepositDTO.getAmount(), accountDepositDTO.getCurrency().name(), TransactionType.DEPOSIT.name());
+
+        accountTransaction.saveIt();
     }
 
     @ReadFromDatabase

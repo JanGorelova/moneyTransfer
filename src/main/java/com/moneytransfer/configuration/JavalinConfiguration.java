@@ -23,20 +23,22 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 
 @Slf4j
 public class JavalinConfiguration {
-    public static void startJavalin(Properties properties) {
-        Javalin app = Javalin.create(config -> {
+    public static Javalin startJavalin(Properties properties) {
+        Javalin application = Javalin.create(config -> {
             config.enableDevLogging();
             config.registerPlugin(new OpenApiPlugin(configureSwagger()));
             config.defaultContentType = "application/json";
         });
 
-        configureEndpoints(app);
-        configureExceptionHandling(app);
+        configureEndpoints(application);
+        configureExceptionHandling(application);
         configureToJsonMapper();
 
         int port = Integer.parseInt(properties.getProperty("application.port"));
 
-        app.start(port);
+        application.start(port);
+
+        return application;
     }
 
     private static void configureEndpoints(Javalin app) {

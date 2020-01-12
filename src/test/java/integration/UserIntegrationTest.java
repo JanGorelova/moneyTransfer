@@ -1,46 +1,64 @@
 package integration;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
+import com.moneytransfer.configuration.database.DatabaseConfiguration;
+import com.moneytransfer.model.entity.User;
+import com.moneytransfer.util.ApplicationUtil;
+import constants.Constants;
+import dto.ResponseDTO;
+import io.javalin.Javalin;
+import org.eclipse.jetty.http.HttpStatus;
+import org.javalite.activejdbc.DB;
+import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import util.ApplicationInitializationUtil;
 import util.DataGenerationUtil;
+import util.HttpRequestUtil;
 
-import java.io.IOException;
+import java.time.LocalDate;
 
 
 public class UserIntegrationTest {
-    private static final String USER_CREATION_URL = "http://localhost:8081/api/users/create";
-
+    private static Javalin application;
 
     @Before
-    public void setUp() {
-        ApplicationInitializationUtil.initialize();
+    public void setup() {
+        application = ApplicationUtil.start(Constants.TEST_PROPERTIES);
+    }
+
+    @After
+    public void stopApplication() {
+        application.stop();
     }
 
     @Test
-    public void testUserSuccessfullyCreated() throws Exception{
-        String json = DataGenerationUtil.userCreationDTOJson();
-        HttpPost request = new HttpPost(USER_CREATION_URL);
+    public void testUserSuccessfullyCreated() {
+        String userCreationDTOJson = DataGenerationUtil.generateUserCreationDTOJson("Test@test.com");
 
-        request.setHeader("Accept", "application/json");
-        request.setHeader("Content-type", "application/json");
+        ResponseDTO responseDTO = HttpRequestUtil.launchPost(Constants.USER_CREATION_URL, userCreationDTOJson);
+        String userDTOJson = responseDTO.getEntity();
 
-        request.setEntity(new StringEntity(json));
+        Assert.assertEquals(HttpStatus.OK_200, responseDTO.getStatus());
 
-        CloseableHttpClient client = HttpClients.createDefault();
-        CloseableHttpResponse response = client.execute(request);
-        String entity = EntityUtils.toString(response.getEntity());
+        Assert.assertTrue(userDTOJson.contains("\"firstName\":\"TestFirstName\""));
+        Assert.assertTrue(userDTOJson.contains("\"lastName\":\"TestLastName\""));
+        Assert.assertTrue(userDTOJson.contains("\"email\":\"Test@test.com\""));
+        Assert.assertTrue(userDTOJson.contains("\"dateCreated\":\"" + LocalDate.now()));
+        Assert.assertTrue(userDTOJson.contains("\"dateUpdated\":\"" + LocalDate.now()));
 
+        DB conn = DatabaseConfiguration.getConnection();
+        Assert.assertFalse(User.where("email = ?", "Test@test.com").isEmpty());
+        conn.close();
     }
 
     @Test
-    public void testUserCreationFailedEmailAlreadyExists() throws IOException {
+    public void testUserCreationFailedEmailAlreadyExists() {
+        String userCreationDTOJson = DataGenerationUtil.generateUserCreationDTOJson("Test@test.com");
+        HttpRequestUtil.launchPost(Constants.USER_CREATION_URL, userCreationDTOJson);
 
+        ResponseDTO responseDTO = HttpRequestUtil.launchPost(Constants.USER_CREATION_URL, userCreationDTOJson);
+
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR_500, responseDTO.getStatus());
+        Assert.assertTrue(responseDTO.getEntity().contains("\"message\":\"User with specified email: Test@test.com already exists\""));
     }
 }

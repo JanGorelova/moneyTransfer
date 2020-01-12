@@ -23,10 +23,10 @@ CREATE TABLE IF NOT EXISTS accounts (
 
 CREATE TABLE IF NOT EXISTS account_transactions (
     id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-    sender_id BIGINT NOT NULL,
+    sender_id BIGINT NULL,
     recipient_id BIGINT NOT NULL,
     amount DECIMAL(16,7) NOT NULL,
-    transaction_type ENUM('INTERNAL', 'EXTERNAL') NOT NULL,
+    transaction_type ENUM('INTERNAL', 'EXTERNAL', 'DEPOSIT') NOT NULL,
     currency ENUM('USD', 'RUB', 'EUR') NOT NULL,
     date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 

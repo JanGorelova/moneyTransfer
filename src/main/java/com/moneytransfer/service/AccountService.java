@@ -53,8 +53,8 @@ public class AccountService {
         Currency currency = transferDTO.getCurrency();
         BigDecimal amount = transferDTO.getAmount();
 
-        Account recipient = getAccount(transferDTO.getRecipientAccountId());
         Account sender = getAccount(transferDTO.getSenderAccountId());
+        Account recipient = getAccount(transferDTO.getRecipientAccountId());
 
         BigDecimal amountInSenderCurrency = RateUtil.exchange(sender.getCurrency(), currency, amount);
         verifyEnoughMoney(sender, amountInSenderCurrency);
@@ -71,9 +71,11 @@ public class AccountService {
     @InTransaction
     public AccountDTO deposit(AccountDepositDTO accountDepositDTO) {
         Account account = getAccount(accountDepositDTO.getRecipientAccountId());
+        Currency currency = accountDepositDTO.getCurrency();
         BigDecimal amount = accountDepositDTO.getAmount().setScale(6, BigDecimal.ROUND_HALF_UP);
 
-        increaseBalance(account, amount, accountDepositDTO.getCurrency());
+        increaseBalance(account, amount, currency);
+        accountTransactionService.createForDeposit(accountDepositDTO);
 
         return toDTO(account);
     }
@@ -111,13 +113,14 @@ public class AccountService {
 
     private void verifyAccountDoesntExist(Long userId) {
         if (!Account.where("user_id = ?", userId).isEmpty())
-            throw new MoneyTransferException("User with specified id already has account", HttpStatus.NOT_ACCEPTABLE_406);
+            throw new MoneyTransferException(String.format("User with specified id: %s already has account", userId), HttpStatus.NOT_ACCEPTABLE_406);
     }
 
     private void verifyEnoughMoney(Account sender, BigDecimal amount) {
         BigDecimal balance = sender.getBalance();
         if (balance.compareTo(amount) <= 0) {
-            throw new MoneyTransferException("Transfer not allowed insufficient funds", HttpStatus.NOT_ACCEPTABLE_406);
+            throw new MoneyTransferException(String.format("Sender with account id: %s has not enough funds for transfer", sender.getId()),
+                    HttpStatus.NOT_ACCEPTABLE_406);
         }
     }
 
