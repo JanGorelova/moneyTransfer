@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class AccountDTO {
+    private Long id;
+
     private Long userId;
 
     private BigDecimal balance;

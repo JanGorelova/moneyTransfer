@@ -53,7 +53,6 @@ public class AccountController {
     }
 
     @OpenApi(summary = "Transfer funds between accounts", path = "/api/accounts/transactions", method = HttpMethod.GET,
-            requestBody = @OpenApiRequestBody(content = {@OpenApiContent(from = AccountTransferDTO.class)}),
             responses = @OpenApiResponse(status = "200", content = {@OpenApiContent(from = AccountTransactionDTO.class, isArray = true)}))
     public static void getTransactions(Context context) {
         context.json(accountTransactionService.getAll());

@@ -44,6 +44,7 @@ public class AccountIntegrationTest {
 
         Assert.assertEquals(HttpStatus.OK_200, responseDTO.getStatus());
 
+        Assert.assertTrue(accountDTOJson.contains("\"id\":1"));
         Assert.assertTrue(accountDTOJson.contains("\"userId\":1"));
         Assert.assertTrue(accountDTOJson.contains("\"balance\":0"));
         Assert.assertTrue(accountDTOJson.contains("\"currency\":\"RUB\""));

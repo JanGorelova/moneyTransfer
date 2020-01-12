@@ -55,7 +55,7 @@ dependencies {
     compile 'io.swagger.core.v3:swagger-core:2.0.9'
     compile 'com.fasterxml.jackson.module:jackson-module-kotlin:2.10.1'
     compile 'io.github.classgraph:classgraph:4.8.34'
-    compile 'org.webjars:swagger-ui:3.24.3'
+    compile 'org.webjars:swagger-ui:3.23.8'
     compile 'cc.vileda:kotlin-openapi3-dsl:0.20.2'
     compile 'com.zaxxer:HikariCP:2.6.1'
 

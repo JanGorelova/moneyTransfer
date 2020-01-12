@@ -126,6 +126,7 @@ public class AccountService {
 
     private AccountDTO toDTO(Account account) {
         return AccountDTO.builder()
+                .id(account.getLongId())
                 .userId(account.getUserId())
                 .balance(account.getBalance())
                 .currency(account.getCurrency())

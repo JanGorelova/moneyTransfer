@@ -41,6 +41,7 @@ public class UserService {
 
     private UserDTO toDTO(User user) {
         return UserDTO.builder()
+                .id(user.getLongId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())

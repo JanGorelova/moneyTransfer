@@ -40,6 +40,7 @@ public class UserIntegrationTest {
 
         Assert.assertEquals(HttpStatus.OK_200, responseDTO.getStatus());
 
+        Assert.assertTrue(userDTOJson.contains("\"id\":1"));
         Assert.assertTrue(userDTOJson.contains("\"firstName\":\"TestFirstName\""));
         Assert.assertTrue(userDTOJson.contains("\"lastName\":\"TestLastName\""));
         Assert.assertTrue(userDTOJson.contains("\"email\":\"Test@test.com\""));
