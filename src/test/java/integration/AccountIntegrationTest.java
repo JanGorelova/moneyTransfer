@@ -61,7 +61,7 @@ public class AccountIntegrationTest {
         ResponseDTO responseDTO = HttpRequestUtil.launchPost(Constants.ACCOUNT_CREATION_URL,
                 DataGenerationUtil.generateAccountCreationDTOJson(1L, Currency.RUB.name()));
 
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR_500, responseDTO.getStatus());
+        Assert.assertEquals(HttpStatus.NOT_ACCEPTABLE_406, responseDTO.getStatus());
         Assert.assertTrue(responseDTO.getEntity().contains("\"message\":\"User with specified id: 1 doesn't exist\""));
     }
 
@@ -73,7 +73,7 @@ public class AccountIntegrationTest {
         ResponseDTO responseDTO = HttpRequestUtil.launchPost(Constants.ACCOUNT_CREATION_URL,
                 DataGenerationUtil.generateAccountCreationDTOJson(1L, Currency.EUR.name()));
 
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR_500, responseDTO.getStatus());
+        Assert.assertEquals(HttpStatus.NOT_ACCEPTABLE_406, responseDTO.getStatus());
         Assert.assertTrue(responseDTO.getEntity().contains("\"message\":\"User with specified id: 1 already has account\""));
     }
 
@@ -109,7 +109,7 @@ public class AccountIntegrationTest {
         ResponseDTO responseDTO = HttpRequestUtil.launchPost(Constants.ACCOUNT_DEPOSIT_URL,
                 DataGenerationUtil.generateAccountDepositDTOJson(1L, BigDecimal.ONE, Currency.RUB.name()));
 
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR_500, responseDTO.getStatus());
+        Assert.assertEquals(HttpStatus.NOT_ACCEPTABLE_406, responseDTO.getStatus());
         Assert.assertTrue(responseDTO.getEntity().contains("\"message\":\"Account with id: 1 doesn't exist\""));
     }
 
@@ -156,7 +156,7 @@ public class AccountIntegrationTest {
         ResponseDTO responseDTO = HttpRequestUtil.launchPost(Constants.ACCOUNT_TRANSFER_URL,
                 DataGenerationUtil.generateAccountTransferDTOJson(1L, 2L, BigDecimal.ONE, Currency.EUR.name()));
 
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR_500, responseDTO.getStatus());
+        Assert.assertEquals(HttpStatus.NOT_ACCEPTABLE_406, responseDTO.getStatus());
         Assert.assertTrue(responseDTO.getEntity().contains("\"message\":\"Account with id: 1 doesn't exist\""));
     }
 
@@ -168,7 +168,7 @@ public class AccountIntegrationTest {
         ResponseDTO responseDTO = HttpRequestUtil.launchPost(Constants.ACCOUNT_TRANSFER_URL,
                 DataGenerationUtil.generateAccountTransferDTOJson(1L, 2L, BigDecimal.ONE, Currency.EUR.name()));
 
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR_500, responseDTO.getStatus());
+        Assert.assertEquals(HttpStatus.NOT_ACCEPTABLE_406, responseDTO.getStatus());
         Assert.assertTrue(responseDTO.getEntity().contains("\"message\":\"Account with id: 2 doesn't exist\""));
     }
 
@@ -186,7 +186,7 @@ public class AccountIntegrationTest {
         ResponseDTO responseDTO = HttpRequestUtil.launchPost(Constants.ACCOUNT_TRANSFER_URL,
                 DataGenerationUtil.generateAccountTransferDTOJson(1L, 2L, BigDecimal.TEN, Currency.EUR.name()));
 
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR_500, responseDTO.getStatus());
+        Assert.assertEquals(HttpStatus.NOT_ACCEPTABLE_406, responseDTO.getStatus());
         Assert.assertTrue(responseDTO.getEntity().contains("\"message\":\"Sender with account id: 1 has not enough funds for transfer\""));
     }
 

@@ -59,7 +59,7 @@ public class UserIntegrationTest {
 
         ResponseDTO responseDTO = HttpRequestUtil.launchPost(Constants.USER_CREATION_URL, userCreationDTOJson);
 
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR_500, responseDTO.getStatus());
+        Assert.assertEquals(HttpStatus.NOT_ACCEPTABLE_406, responseDTO.getStatus());
         Assert.assertTrue(responseDTO.getEntity().contains("\"message\":\"User with specified email: Test@test.com already exists\""));
     }
 }

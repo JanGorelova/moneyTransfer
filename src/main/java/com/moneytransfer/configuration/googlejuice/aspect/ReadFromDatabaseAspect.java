@@ -2,12 +2,10 @@ package com.moneytransfer.configuration.googlejuice.aspect;
 
 
 import com.moneytransfer.configuration.database.DatabaseConfiguration;
-import com.moneytransfer.exception.MoneyTransferException;
 import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.eclipse.jetty.http.HttpStatus;
 import org.javalite.activejdbc.Base;
 import org.javalite.activejdbc.DB;
 
@@ -27,6 +25,6 @@ public class ReadFromDatabaseAspect implements MethodInterceptor {
                     .andFinally(connection::close);
         }
 
-        return objectTry.getOrElseThrow( e -> new MoneyTransferException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR_500, e.getCause()));
+        return objectTry.get();
     }
 }
