@@ -14,15 +14,16 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 @Getter
-
 @Slf4j
 public class DatabaseConfiguration {
     private static DataSource dataSource;
+    private static String profile;
 
     public static void initializeDatabase(Properties properties) {
+        profile = properties.getProperty("profile");
         dataSource = getHikariDataSource(properties);
 
-        FlywayConfiguration.initializeSchema(dataSource);
+        FlywayConfiguration.initializeSchema(dataSource, profile);
     }
 
     private static HikariDataSource getHikariDataSource(Properties properties) {
@@ -33,7 +34,8 @@ public class DatabaseConfiguration {
         hikariConfig.setPassword(properties.getProperty("datasource.password"));
         hikariConfig.setMaximumPoolSize(100);
 
-//        hikariConfig.setDriverClassName("com.mysql.jdbc.Driver");
+        if (profile.contains("mysql"))
+            hikariConfig.setDriverClassName("com.mysql.jdbc.Driver");
 
         return new HikariDataSource(hikariConfig);
     }
