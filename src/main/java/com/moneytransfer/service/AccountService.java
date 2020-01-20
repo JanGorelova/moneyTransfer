@@ -96,7 +96,7 @@ public class AccountService {
     }
 
     private Account getAccount(Long accountId) {
-        Account account = Account.findById(accountId);
+        Account account = (Account) Account.findBySQL("SELECT account.* where id = ? FOR UPDATE", accountId).get(0);
 
         if (Objects.isNull(account))
             throw new MoneyTransferException(String.format("Account with id: %s doesn't exist", accountId), HttpStatus.NOT_ACCEPTABLE_406);
